@@ -11,6 +11,17 @@ import {
   isDateInRange,
 } from '../../utils/dateUtils';
 
+const ONE_DAY = 24 * 60 * 60 * 1000;
+enum 요일 {
+  '일',
+  '월',
+  '화',
+  '수',
+  '목',
+  '금',
+  '토',
+}
+
 describe('getDaysInMonth', () => {
   it('1월은 31일 수를 반환한다', () => {
     expect(getDaysInMonth(2024, 1)).toBe(31);
@@ -36,30 +47,156 @@ describe('getDaysInMonth', () => {
 
   it('유효하지 않은 월에 대해 적절히 처리한다', () => {
     // error throw에 대한 에러를 확인하려면 함수식으로 넣어야한다.
-    expect(() => getDaysInMonth(2025, 15)).toThrowError('Wrong Month');
-    expect(() => getDaysInMonth(2025, 0)).toThrowError('Wrong Month');
-    expect(() => getDaysInMonth(2025, -10)).toThrowError('Wrong Month');
+
+    expect(() => getDaysInMonth(2025, 15)).toThrowError('Wrong Month'); //over
+    expect(() => getDaysInMonth(2025, 0)).toThrowError('Wrong Month'); //below
+    expect(() => getDaysInMonth(2025, -10)).toThrowError('Wrong Month'); //below 0
   });
 });
 
 describe('getWeekDates', () => {
-  it('주중의 날짜(수요일)에 대해 올바른 주의 날짜들을 반환한다', () => {});
+  let today = new Date();
+  beforeEach(() => {
+    // 가짜 타이머 활성화
+    vi.useFakeTimers();
 
-  it('주의 시작(월요일)에 대해 올바른 주의 날짜들을 반환한다', () => {});
+    // 특정 시간으로 시스템 시간 고정
+    vi.setSystemTime(new Date('2025-02-01T12:28:32.440Z'));
+    today = new Date();
+  });
 
-  it('주의 끝(일요일)에 대해 올바른 주의 날짜들을 반환한다', () => {});
+  afterEach(() => {
+    // 원래 타이머로 복구
+    vi.useRealTimers();
+    today = new Date();
+  });
 
-  it('연도를 넘어가는 주의 날짜를 정확히 처리한다 (연말)', () => {});
+  // !Q1. 현재 시간값을 기준으로 테스트하는것이 좋을까요?
+  it('주중의 날짜(수요일)에 대해 올바른 주의 날짜들을 반환한다', () => {
+    const diff = today.getDay() - 요일.수;
+    // 이번주의 수요일 구하는 공식
+    console.log(today);
+    const wednesday = new Date(today.setDate(today.getDate() - diff));
 
-  it('연도를 넘어가는 주의 날짜를 정확히 처리한다 (연초)', () => {});
+    const expected = [
+      new Date(wednesday.getTime() - ONE_DAY * 3), // 일요일
+      new Date(wednesday.getTime() - ONE_DAY * 2), // 월요일
+      new Date(wednesday.getTime() - ONE_DAY), // 화요일
+      wednesday, // 수요일
+      new Date(wednesday.getTime() + ONE_DAY), // 목요일
+      new Date(wednesday.getTime() + ONE_DAY * 2), // 금요일
+      new Date(wednesday.getTime() + ONE_DAY * 3), // 토요일
+    ];
 
-  it('윤년의 2월 29일을 포함한 주를 올바르게 처리한다', () => {});
+    // Reference 비교가 들어가는 것은 toEqual을 사용한다.
+    expect(getWeekDates(new Date(wednesday))).toEqual(expected);
+  });
 
-  it('월의 마지막 날짜를 포함한 주를 올바르게 처리한다', () => {});
+  it('주의 시작(월요일)에 대해 올바른 주의 날짜들을 반환한다', () => {
+    const diff = today.getDay() - 요일.월;
+    // 이번주의 월요일 구하는 공식
+    const monday = new Date(new Date().setDate(today.getDate() - diff));
+    const expected = [
+      new Date(monday.getTime() - ONE_DAY), // 일요일
+      monday,
+      new Date(monday.getTime() + ONE_DAY),
+      new Date(monday.getTime() + ONE_DAY * 2),
+      new Date(monday.getTime() + ONE_DAY * 3),
+      new Date(monday.getTime() + ONE_DAY * 4),
+      new Date(monday.getTime() + ONE_DAY * 5),
+    ];
+
+    expect(getWeekDates(new Date(monday))).toEqual(expected);
+  });
+
+  it('주의 끝(일요일)에 대해 올바른 주의 날짜들을 반환한다', () => {
+    const diff = today.getDay() - 요일.일;
+    // 이번주의 일요일 구하는 공식
+    const sunday = new Date(new Date().setDate(today.getDate() - diff));
+    const expected = [
+      sunday,
+      new Date(sunday.getTime() + ONE_DAY),
+      new Date(sunday.getTime() + ONE_DAY * 2),
+      new Date(sunday.getTime() + ONE_DAY * 3),
+      new Date(sunday.getTime() + ONE_DAY * 4),
+      new Date(sunday.getTime() + ONE_DAY * 5),
+      new Date(sunday.getTime() + ONE_DAY * 6),
+    ];
+
+    expect(getWeekDates(new Date(sunday))).toEqual(expected);
+  });
+
+  it('연도를 넘어가는 주의 날짜를 정확히 처리한다 (연말)', () => {
+    const lastDay = new Date('2024-12-31'); // 화요일
+    const expected = [
+      new Date(lastDay.getTime() - ONE_DAY * 2), // 일요일
+      new Date(lastDay.getTime() - ONE_DAY), // 월요일
+      lastDay, // 화요일
+      new Date(lastDay.getTime() + ONE_DAY), // 수요일
+      new Date(lastDay.getTime() + ONE_DAY * 2), // 목요일
+      new Date(lastDay.getTime() + ONE_DAY * 3), // 금요일
+      new Date(lastDay.getTime() + ONE_DAY * 4), // 토요일
+    ];
+
+    expect(getWeekDates(new Date(lastDay))).toEqual(expected);
+  });
+
+  it('연도를 넘어가는 주의 날짜를 정확히 처리한다 (연초)', () => {
+    const firstDay = new Date('2025-01-01'); // 수요일
+    const expected = [
+      new Date(firstDay.getTime() - ONE_DAY * 3), // 일요일
+      new Date(firstDay.getTime() - ONE_DAY * 2), // 월요일
+      new Date(firstDay.getTime() - ONE_DAY), // 화요일
+      firstDay, // 수요일
+      new Date(firstDay.getTime() + ONE_DAY), // 목요일
+      new Date(firstDay.getTime() + ONE_DAY * 2), // 금요일
+      new Date(firstDay.getTime() + ONE_DAY * 3), // 토요일
+    ];
+
+    expect(getWeekDates(new Date(firstDay))).toEqual(expected);
+  });
+
+  it('윤년의 2월 29일을 포함한 주를 올바르게 처리한다', () => {
+    const leapYearLastDay = new Date('2024-02-29'); // 목요일
+    const expected = [
+      new Date(leapYearLastDay.getTime() - ONE_DAY * 4), // 일요일
+      new Date(leapYearLastDay.getTime() - ONE_DAY * 3), // 월요일
+      new Date(leapYearLastDay.getTime() - ONE_DAY * 2), // 화요일
+      new Date(leapYearLastDay.getTime() - ONE_DAY), // 수요일
+      leapYearLastDay, // 목요일
+      new Date(leapYearLastDay.getTime() + ONE_DAY), // 금요일
+      new Date(leapYearLastDay.getTime() + ONE_DAY * 2), // 토요일
+    ];
+
+    expect(getWeekDates(new Date(leapYearLastDay))).toEqual(expected);
+  });
+
+  it('월의 마지막 날짜를 포함한 주를 올바르게 처리한다', () => {
+    const lastDay = new Date('2024-07-31'); // 수요일
+    const expected = [
+      new Date(lastDay.getTime() - ONE_DAY * 3), // 일요일
+      new Date(lastDay.getTime() - ONE_DAY * 2), // 월요일
+      new Date(lastDay.getTime() - ONE_DAY), // 화요일
+      lastDay, // 수요일
+      new Date(lastDay.getTime() + ONE_DAY), // 목요일
+      new Date(lastDay.getTime() + ONE_DAY * 2), // 금요일
+      new Date(lastDay.getTime() + ONE_DAY * 3), // 토요일
+    ];
+
+    expect(getWeekDates(new Date(lastDay))).toEqual(expected);
+  });
 });
 
 describe('getWeeksAtMonth', () => {
-  it('2024년 7월 1일의 올바른 주 정보를 반환해야 한다', () => {});
+  it('2024년 7월 1일의 올바른 주 정보를 반환해야 한다', () => {
+    const weeks = getWeeksAtMonth(new Date('2024-07-01'));
+    expect(weeks).toHaveLength(5);
+
+    // 1일은 월요일이므로 앞에 null이 들어가야 한다.
+    expect(weeks[0]).toEqual([null, 1, 2, 3, 4, 5, 6]);
+    // 마지막 주
+    expect(weeks[weeks.length - 1]).toEqual([28, 29, 30, 31, null, null, null]);
+  });
 });
 
 describe('getEventsForDay', () => {
