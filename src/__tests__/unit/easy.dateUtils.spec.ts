@@ -12,15 +12,34 @@ import {
 } from '../../utils/dateUtils';
 
 describe('getDaysInMonth', () => {
-  it('1월은 31일 수를 반환한다', () => {});
+  it('1월은 31일 수를 반환한다', () => {
+    expect(getDaysInMonth(2024, 1)).toBe(31);
+  });
 
-  it('4월은 30일 일수를 반환한다', () => {});
+  it('4월은 30일 일수를 반환한다', () => {
+    expect(getDaysInMonth(2024, 4)).toBe(30);
+  });
 
-  it('윤년의 2월에 대해 29일을 반환한다', () => {});
+  it('윤년의 2월에 대해 29일을 반환한다', () => {
+    const leapYears = [2024, 1988, 2400];
+    leapYears.forEach((ly) => {
+      expect(getDaysInMonth(ly, 2)).toBe(29);
+    });
+  });
 
-  it('평년의 2월에 대해 28일을 반환한다', () => {});
+  it('평년의 2월에 대해 28일을 반환한다', () => {
+    const normalYears = [2023, 1990, 2300];
+    normalYears.forEach((ny) => {
+      expect(getDaysInMonth(ny, 2)).toBe(28);
+    });
+  });
 
-  it('유효하지 않은 월에 대해 적절히 처리한다', () => {});
+  it('유효하지 않은 월에 대해 적절히 처리한다', () => {
+    // error throw에 대한 에러를 확인하려면 함수식으로 넣어야한다.
+    expect(() => getDaysInMonth(2025, 15)).toThrowError('Wrong Month');
+    expect(() => getDaysInMonth(2025, 0)).toThrowError('Wrong Month');
+    expect(() => getDaysInMonth(2025, -10)).toThrowError('Wrong Month');
+  });
 });
 
 describe('getWeekDates', () => {
