@@ -1,4 +1,4 @@
-import { Event } from '../../types';
+import { events as mockEvents } from '../../__mocks__/data/events';
 import {
   fillZero,
   formatDate,
@@ -200,126 +200,13 @@ describe('getWeeksAtMonth', () => {
 });
 
 describe('getEventsForDay', () => {
-  let mockEvents: Event[] = [];
-  beforeEach(() => {
-    mockEvents = [
-      {
-        id: '1',
-        title: '기존 회의',
-        date: '2024-10-1',
-        startTime: '10:00',
-        endTime: '11:00',
-        description: '첫 날 회의',
-        location: '대회의실',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '2',
-        title: '신규 회의',
-        date: '2024-10-17',
-        startTime: '11:00',
-        endTime: '12:00',
-        description: '신규 팀 미팅 (1)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '3',
-        title: '신규 회의',
-        date: '2024-10-18',
-        startTime: '12:00',
-        endTime: '13:00',
-        description: '신규 팀 미팅 (2)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '4',
-        title: '신규 회의',
-        date: '2024-10-19',
-        startTime: '13:00',
-        endTime: '14:00',
-        description: '신규 팀 미팅 (3)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '5',
-        title: '신규 회의',
-        date: '2024-10-20',
-        startTime: '14:00',
-        endTime: '15:00',
-        description: '신규 팀 미팅 (4)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '6',
-        title: '신규 회의',
-        date: '2024-10-21',
-        startTime: '15:00',
-        endTime: '16:00',
-        description: '신규 팀 미팅 (5)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '7',
-        title: '신규 회의',
-        date: '2024-10-22',
-        startTime: '16:00',
-        endTime: '17:00',
-        description: '신규 팀 미팅 (6)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '8',
-        title: '신규 회의',
-        date: '2024-10-23',
-        startTime: '17:00',
-        endTime: '18:00',
-        description: '신규 팀 미팅 (7)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-      {
-        id: '9',
-        title: '신규 회의',
-        date: '2024-10-24',
-        startTime: '18:00',
-        endTime: '19:00',
-        description: '신규 팀 미팅 (8)',
-        location: '회의실 A',
-        category: '업무',
-        repeat: { type: 'none', interval: 0 },
-        notificationTime: 10,
-      },
-    ];
-  });
   it('특정 날짜(1일)에 해당하는 이벤트만 정확히 반환한다', () => {
     const events = getEventsForDay(mockEvents, new Date('2024-10-01').getDate());
     expect(events).toHaveLength(1);
     expect(events[0]).toEqual({
       id: '1',
       title: '기존 회의',
-      date: '2024-10-1',
+      date: '2024-10-01',
       startTime: '10:00',
       endTime: '11:00',
       description: '첫 날 회의',
