@@ -18,7 +18,7 @@ const HOLIDAY_RECORD = {
 type HolidayRecord = typeof HOLIDAY_RECORD;
 type HolidayKeys = keyof HolidayRecord;
 
-export function fetchHolidays(date: Date) {
+export function fetchHolidays(date: Date): Record<string, string> {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const holidays = Object.keys(HOLIDAY_RECORD) as HolidayKeys[];
