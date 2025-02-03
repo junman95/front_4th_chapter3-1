@@ -13,22 +13,24 @@ const events: Event[] = [
     repeat: { type: 'none', interval: 0 },
     notificationTime: 10,
   },
+  // 이벤트 2
   {
     id: '2',
     title: '신규 회의',
     date: '2024-10-17',
     startTime: '11:00',
     endTime: '12:00',
-    description: '신규 팀 미팅 (1)',
+    description: '이벤트 2',
     location: '회의실 A',
     category: '업무',
     repeat: { type: 'none', interval: 0 },
     notificationTime: 10,
   },
+  // 7월의 이벤트들
   {
     id: '3',
     title: '신규 회의',
-    date: '2024-10-18',
+    date: '2024-07-01',
     startTime: '12:00',
     endTime: '13:00',
     description: '신규 팀 미팅 (2)',
@@ -40,7 +42,7 @@ const events: Event[] = [
   {
     id: '4',
     title: '신규 회의',
-    date: '2024-10-19',
+    date: '2024-07-05',
     startTime: '13:00',
     endTime: '14:00',
     description: '신규 팀 미팅 (3)',
@@ -52,10 +54,10 @@ const events: Event[] = [
   {
     id: '5',
     title: '신규 회의',
-    date: '2024-10-20',
+    date: '2024-07-20',
     startTime: '14:00',
     endTime: '15:00',
-    description: '신규 팀 미팅 (4)',
+    description: 'EVENT 기획', // 대소문자 테스트
     location: '회의실 A',
     category: '업무',
     repeat: { type: 'none', interval: 0 },
@@ -64,10 +66,10 @@ const events: Event[] = [
   {
     id: '6',
     title: '신규 회의',
-    date: '2024-10-21',
+    date: '2024-07-21',
     startTime: '15:00',
     endTime: '16:00',
-    description: '신규 팀 미팅 (5)',
+    description: '이벤트 실행',
     location: '회의실 A',
     category: '업무',
     repeat: { type: 'none', interval: 0 },
@@ -76,10 +78,10 @@ const events: Event[] = [
   {
     id: '7',
     title: '신규 회의',
-    date: '2024-10-22',
+    date: '2024-07-22',
     startTime: '16:00',
     endTime: '17:00',
-    description: '신규 팀 미팅 (6)',
+    description: '이벤트 후기',
     location: '회의실 A',
     category: '업무',
     repeat: { type: 'none', interval: 0 },
@@ -139,4 +141,31 @@ const newNoneOverlappingEvent: Event = {
   notificationTime: 10,
 };
 
-export { events, newOverlappingEvent, newNoneOverlappingEvent };
+const edgeEvents: Event[] = [
+  {
+    id: '12',
+    title: '신규 회의',
+    date: '2024-10-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '첫 날 회의',
+    location: '대회의실',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  },
+  {
+    id: '13',
+    title: '신규 회의',
+    date: '2024-09-30',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '첫 날 회의',
+    location: '대회의실',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  },
+];
+
+export { events, newOverlappingEvent, newNoneOverlappingEvent, edgeEvents };
