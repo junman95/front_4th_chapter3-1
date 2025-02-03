@@ -202,7 +202,8 @@ describe('getWeeksAtMonth', () => {
 describe('getEventsForDay', () => {
   it('특정 날짜(1일)에 해당하는 이벤트만 정확히 반환한다', () => {
     const events = getEventsForDay(mockEvents, new Date('2024-10-01').getDate());
-    expect(events).toHaveLength(1);
+    // 7/1도 추가되어서 2개가 나온다.
+    expect(events).toHaveLength(2);
     expect(events[0]).toEqual({
       id: '1',
       title: '기존 회의',
