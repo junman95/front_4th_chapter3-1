@@ -195,4 +195,50 @@ const alarmEvents: Event[] = [
   },
 ];
 
-export { events, newOverlappingEvent, newNoneOverlappingEvent, edgeEvents, alarmEvents };
+const eachFilterEvents: Event[] = [
+  {
+    id: '1',
+    title: '아침 타이틀',
+    date: '2024-10-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '첫 날 회의',
+    location: '대회의실',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  },
+  {
+    id: '2',
+    title: '점심 먹자',
+    date: '2024-10-17',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '설명 매치',
+    location: '식당',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  },
+  {
+    id: '2',
+    title: '저녁 회의',
+    date: '2024-10-17',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '회의',
+    location: '장소 매치 회의실 A',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  },
+];
+
+export {
+  events,
+  newOverlappingEvent,
+  newNoneOverlappingEvent,
+  edgeEvents,
+  alarmEvents,
+  eachFilterEvents,
+};
