@@ -168,4 +168,31 @@ const edgeEvents: Event[] = [
   },
 ];
 
-export { events, newOverlappingEvent, newNoneOverlappingEvent, edgeEvents };
+const alarmEvents: Event[] = [
+  {
+    id: '1',
+    title: '기존 회의',
+    date: '2024-10-01',
+    startTime: '10:00',
+    endTime: '11:00',
+    description: '첫 날 회의',
+    location: '대회의실',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  },
+  {
+    id: '2',
+    title: '신규 회의',
+    date: '2024-10-15',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '이벤트 2',
+    location: '회의실 A',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 60,
+  },
+];
+
+export { events, newOverlappingEvent, newNoneOverlappingEvent, edgeEvents, alarmEvents };
