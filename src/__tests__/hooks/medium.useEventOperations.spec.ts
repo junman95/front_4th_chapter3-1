@@ -1,13 +1,13 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { http, HttpResponse } from 'msw';
 
 import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
+  setupMockHandlerDeletionError,
+  setupMockHandlerFetchingError,
   setupMockHandlerUpdating,
 } from '../../__mocks__/handlersUtils.ts';
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
-import { server } from '../../setupTests.ts';
 import { Event, EventForm } from '../../types.ts';
 
 const newEvent: EventForm = {
@@ -84,7 +84,7 @@ describe('useEventOperations', () => {
   });
 
   it("이벤트 로딩 실패 시 '이벤트 로딩 실패'라는 텍스트와 함께 에러 토스트가 표시되어야 한다", async () => {
-    server.use(http.get('/api/events', () => HttpResponse.error()));
+    setupMockHandlerFetchingError();
     renderHook(() => useEventOperations(false));
 
     await waitFor(() =>
@@ -116,7 +116,7 @@ describe('useEventOperations', () => {
   });
 
   it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되며 이벤트 삭제가 실패해야 한다", async () => {
-    server.use(http.delete('/api/events/:id', () => HttpResponse.error()));
+    setupMockHandlerDeletionError();
     const { result } = renderHook(() => useEventOperations(false));
     act(() => {
       result.current.deleteEvent('1');
