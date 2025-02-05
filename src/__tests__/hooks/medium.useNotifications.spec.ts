@@ -1,11 +1,8 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 import { setupMockHandlerFetching } from '../../__mocks__/handlersUtils.ts';
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { Event } from '../../types.ts';
-import { formatDate } from '../../utils/dateUtils.ts';
-import { parseHM } from '../utils.ts';
-
 describe('useNotifications', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -77,17 +74,40 @@ describe('useNotifications', () => {
       events: Event[];
     } = await (await fetch('/api/events')).json();
 
-    vi.setSystemTime(new Date('2024-10-15T08:49:00'));
+    vi.setSystemTime(new Date('2024-10-15T08:49:59'));
 
     const { result } = renderHook(() => useNotifications(events));
 
     act(() => {
-      vi.advanceTimersByTime(65000);
+      vi.advanceTimersByTime(1000);
     });
 
-    // 이부분이 왜 6번이나 호출되는지 모르겠음
-    expect(result.current.notifiedEvents).toHaveLength(6); // 6번나옴. 매 1000ms마다 1번씩 호출되는데, 6번이 나오는 이유는 모르겠음
-    expect(result.current.notifications).toHaveLength(1); // 6번나옴. 매 1000ms마다 1번씩 호출되는데, 6번이 나오는 이유는 모르겠음
+    // Q. 이부분이 왜 6번이나 호출되는지 모르겠음
+    // A. advanceTimersByTime이 매초 지났다고 판정할떄마다 훅의 useInterval이 호출되나,
+    //    filter 로직이 act가 종료되기 전까지는 상태가 업데이트 되지 않아서 6번이 호출된다.
+    //    act 사용시마다 렌더되면서 상태가 업데이트 되는 점을 유의해서 테스트 코드를 작성해야한다.
+    expect(result.current.notifiedEvents).toHaveLength(1);
+    expect(result.current.notifications).toHaveLength(1);
+    expect(result.current.notifications[0].message).toBe(
+      `${events[0].notificationTime}분 후 ${events[0].title} 일정이 시작됩니다.`
+    );
+
+    // 1초가 더 지나도 filter에서 걸려서 1개만 그대로 남아있음
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.notifiedEvents).toHaveLength(1);
+    expect(result.current.notifications).toHaveLength(1);
+    expect(result.current.notifications[0].message).toBe(
+      `${events[0].notificationTime}분 후 ${events[0].title} 일정이 시작됩니다.`
+    );
+
+    // 1초가 더 지나도 filter에서 걸려서 1개만 그대로 남아있음
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.notifiedEvents).toHaveLength(1);
+    expect(result.current.notifications).toHaveLength(1);
     expect(result.current.notifications[0].message).toBe(
       `${events[0].notificationTime}분 후 ${events[0].title} 일정이 시작됩니다.`
     );
