@@ -8,6 +8,7 @@ import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerFetching,
+  setupMockHandlerUpdating,
 } from '../__mocks__/handlersUtils';
 import App from '../App';
 import { server } from '../setupTests';
@@ -33,6 +34,7 @@ describe('일정 CRUD 및 기본 기능', () => {
   });
   it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
+    setupMockHandlerUpdating();
     const { user } = await appSetup();
 
     const formData: EventForm = {
@@ -150,7 +152,6 @@ describe('일정 CRUD 및 기본 기능', () => {
     const eventList = screen.getByTestId('event-list');
 
     const deleteIconButtons = await screen.findAllByLabelText('Delete event');
-    console.log(deleteIconButtons);
     await user.click(deleteIconButtons[0]);
 
     expect(within(eventList).queryByText(willBeDeletedEvent.title)).toBeNull();
@@ -166,6 +167,20 @@ describe('일정 뷰', () => {
     vi.clearAllTimers();
   });
   it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {
+    setupMockHandlerFetching([
+      {
+        id: '1',
+        title: '기존 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '새로운 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ]);
     const eventTitle = '기존 회의';
     const { user } = await appSetup();
 
@@ -186,6 +201,20 @@ describe('일정 뷰', () => {
   });
 
   it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {
+    setupMockHandlerFetching([
+      {
+        id: '1',
+        title: '기존 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '새로운 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ]);
     const eventTitle = '기존 회의';
     vi.setSystemTime(new Date('2024-10-15T00:00:00'));
     const { user } = await appSetup();
@@ -193,7 +222,6 @@ describe('일정 뷰', () => {
     // 월별 뷰에서 일정이 표시되는지 확인
     const monthView = screen.getByTestId('month-view');
     expect(monthView).toBeInTheDocument();
-    screen.debug(monthView);
     expect(await within(monthView).findByText(eventTitle)).toBeInTheDocument();
 
     // 주별 뷰 클릭
@@ -220,6 +248,20 @@ describe('일정 뷰', () => {
   });
 
   it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {
+    setupMockHandlerFetching([
+      {
+        id: '1',
+        title: '기존 회의',
+        date: '2024-10-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '새로운 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ]);
     const eventTitle = '기존 회의';
     vi.setSystemTime(new Date('2024-10-15T00:00:00'));
     await appSetup();
@@ -237,7 +279,6 @@ describe('일정 뷰', () => {
 
     const monthView = screen.getByTestId('month-view');
     expect(monthView).toBeInTheDocument();
-    screen.debug(monthView);
 
     expect(await within(monthView).findByText('1')).toBeInTheDocument();
     expect(await within(monthView).findByText('신정')).toBeInTheDocument();
@@ -246,7 +287,6 @@ describe('일정 뷰', () => {
 
 describe('검색 기능', () => {
   it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
-    // vi.setSystemTime(new Date('2024-10-01T00:00:00'));
     const events: Event[] = [
       {
         id: '10',
@@ -274,16 +314,13 @@ describe('검색 기능', () => {
       },
     ];
     setupMockHandlerCreation([...events]);
-    const { user } = await appSetup();
+    await appSetup();
 
     const monthView = screen.getByTestId('month-view');
     expect(monthView).toBeInTheDocument();
-    screen.debug(monthView);
 
     const eventList = screen.getByTestId('event-list');
     expect(eventList).toBeInTheDocument();
-    // screen.debug(eventList);
-    // expect(await within(monthView).findByText(eventTitle)).toBeInTheDocument();
   });
 
   it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {});
