@@ -245,7 +245,46 @@ describe('일정 뷰', () => {
 });
 
 describe('검색 기능', () => {
-  it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {});
+  it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
+    // vi.setSystemTime(new Date('2024-10-01T00:00:00'));
+    const events: Event[] = [
+      {
+        id: '10',
+        title: '검색 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '후후후 그냥 회의해',
+        location: '회의실 1',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+      {
+        id: '11',
+        title: '필터 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '미팅',
+        location: '회의실 2',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerCreation([...events]);
+    const { user } = await appSetup();
+
+    const monthView = screen.getByTestId('month-view');
+    expect(monthView).toBeInTheDocument();
+    screen.debug(monthView);
+
+    const eventList = screen.getByTestId('event-list');
+    expect(eventList).toBeInTheDocument();
+    // screen.debug(eventList);
+    // expect(await within(monthView).findByText(eventTitle)).toBeInTheDocument();
+  });
 
   it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {});
 
