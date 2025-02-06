@@ -12,7 +12,6 @@ import {
   Input,
   Select,
   Tooltip,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -23,12 +22,12 @@ import NotificationList from './components/NotificationList.tsx';
 import OverlapAlertDialog from './components/OverlapAlertDialog.tsx';
 import WeekView from './components/WeekView.tsx';
 import { useCalendarView } from './hooks/useCalendarView.ts';
+import { useChangeEvent } from './hooks/useChangeEvent.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
 import { useSearch } from './hooks/useSearch.ts';
-import { Event, EventForm, RepeatType } from './types';
-import { findOverlappingEvents } from './utils/eventOverlap.ts';
+import { Event, RepeatType } from './types';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -88,30 +87,9 @@ function App() {
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
 
-  const toast = useToast();
-
-  const addOrUpdateEvent = async () => {
-    if (!title || !date || !startTime || !endTime) {
-      toast({
-        title: '필수 정보를 모두 입력해주세요.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    if (startTimeError || endTimeError) {
-      toast({
-        title: '시간 설정을 확인해주세요.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const eventData: Event | EventForm = {
+  const { addOrUpdateEvent } = useChangeEvent({
+    events,
+    event: {
       id: editingEvent ? editingEvent.id : undefined,
       title,
       date,
@@ -126,17 +104,15 @@ function App() {
         endDate: repeatEndDate || undefined,
       },
       notificationTime,
-    };
-
-    const overlapping = findOverlappingEvents(eventData, events);
-    if (overlapping.length > 0) {
-      setOverlappingEvents(overlapping);
-      setIsOverlapDialogOpen(true);
-    } else {
-      await saveEvent(eventData);
-      resetForm();
-    }
-  };
+    },
+    errors: { startTimeError, endTimeError },
+    saveEvent,
+    editingEvent,
+    isRepeating,
+    resetForm,
+    setIsOverlapDialogOpen,
+    setOverlappingEvents,
+  });
 
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
