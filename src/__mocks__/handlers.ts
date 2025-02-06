@@ -26,6 +26,4 @@ export const handlers = [
     }
     return HttpResponse.json({ events } as { events: Event[] });
   }),
-
-  http.delete('/api/events/:id', ({ params }) => {}),
 ];

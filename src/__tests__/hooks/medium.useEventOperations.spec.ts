@@ -1,11 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import {
-  setupMockHandlerCreation,
-  setupMockHandlerDeletion,
   setupMockHandlerDeletionError,
   setupMockHandlerFetchingError,
-  setupMockHandlerUpdating,
 } from '../../__mocks__/handlersUtils.ts';
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { Event, EventForm } from '../../types.ts';

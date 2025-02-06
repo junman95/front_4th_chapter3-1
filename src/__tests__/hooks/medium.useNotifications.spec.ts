@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { setupMockHandlerFetching } from '../../__mocks__/handlersUtils.ts';
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { Event } from '../../types.ts';
 describe('useNotifications', () => {
