@@ -287,6 +287,7 @@ describe('일정 뷰', () => {
 
 describe('검색 기능', () => {
   it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
+    vi.setSystemTime(new Date('2025-02-01T00:00:00'));
     const events: Event[] = [
       {
         id: '10',
@@ -313,7 +314,7 @@ describe('검색 기능', () => {
         notificationTime: 10,
       },
     ];
-    setupMockHandlerCreation([...events]);
+    setupMockHandlerFetching([...events]);
     await appSetup();
 
     const monthView = screen.getByTestId('month-view');
@@ -321,17 +322,254 @@ describe('검색 기능', () => {
 
     const eventList = screen.getByTestId('event-list');
     expect(eventList).toBeInTheDocument();
+
+    const searchField = screen.getByLabelText<HTMLInputElement>('일정 검색');
+    await userEvent.type(searchField, '절대안나오는검색어지롱');
+
+    // 검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.
+    expect(await within(eventList).findByText('검색 결과가 없습니다.')).toBeInTheDocument();
+
+    await userEvent.clear(searchField);
+    await userEvent.type(searchField, '회의');
+    // 검색 결과가 있으면, 해당 일정이 표시되어야 한다.
+    expect(await within(eventList).findByText('필터 회의')).toBeInTheDocument();
+    expect(await within(eventList).findByText('검색 회의')).toBeInTheDocument();
   });
 
-  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {});
+  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {
+    vi.setSystemTime(new Date('2025-02-01T00:00:00'));
+    const events: Event[] = [
+      {
+        id: '10',
+        title: '팀 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '후후후 그냥 회의해',
+        location: '회의실 1',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+      {
+        id: '11',
+        title: '개인 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '미팅',
+        location: '회의실 2',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerFetching([...events]);
+    await appSetup();
 
-  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {});
+    const monthView = screen.getByTestId('month-view');
+    expect(monthView).toBeInTheDocument();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(eventList).toBeInTheDocument();
+
+    const searchField = screen.getByLabelText<HTMLInputElement>('일정 검색');
+    await userEvent.type(searchField, '팀 회의');
+
+    // 검색 결과가 있으면, 해당 일정이 표시되어야 한다.
+    expect(await within(eventList).findByText('팀 회의')).toBeInTheDocument();
+  });
+
+  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {
+    vi.setSystemTime(new Date('2025-02-01T00:00:00'));
+    const events: Event[] = [
+      {
+        id: '10',
+        title: '팀 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '후후후 그냥 회의해',
+        location: '회의실 1',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+      {
+        id: '11',
+        title: '개인 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '미팅',
+        location: '회의실 2',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerFetching([...events]);
+    await appSetup();
+
+    const monthView = screen.getByTestId('month-view');
+    expect(monthView).toBeInTheDocument();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(eventList).toBeInTheDocument();
+
+    const searchField = screen.getByLabelText<HTMLInputElement>('일정 검색');
+    await userEvent.type(searchField, '팀 회의');
+
+    // 검색 결과가 있으면, 해당 일정이 표시되어야 한다.
+    expect(await within(eventList).findByText('팀 회의')).toBeInTheDocument();
+    // 검색 필터와 관련 없는 일정은 표시되지 않아야 한다.
+    expect(within(eventList).queryByText('개인 회의')).toBeNull();
+
+    // 검색어를 지우면 모든 일정이 다시 표시되어야 한다
+    await userEvent.clear(searchField);
+    expect(await within(eventList).findByText('팀 회의')).toBeInTheDocument();
+    expect(await within(eventList).findByText('개인 회의')).toBeInTheDocument();
+  });
 });
 
 describe('일정 충돌', () => {
-  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {});
+  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
+    vi.setSystemTime(new Date('2025-02-01T00:00:00'));
+    const events: Event[] = [
+      {
+        id: '10',
+        title: '팀 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '후후후 그냥 회의해',
+        location: '회의실 1',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerFetching([...events]);
+    await appSetup();
 
-  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {});
+    const monthView = screen.getByTestId('month-view');
+    expect(monthView).toBeInTheDocument();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(eventList).toBeInTheDocument();
+
+    const searchField = screen.getByLabelText<HTMLInputElement>('일정 검색');
+    await userEvent.type(searchField, '팀 회의');
+
+    // 검색 결과가 있으면, 해당 일정이 표시되어야 한다.
+    expect(await within(eventList).findByText('팀 회의')).toBeInTheDocument();
+
+    const newEventButton = screen.getByTestId('event-submit-button');
+    await userEvent.click(newEventButton);
+
+    const titleField = screen.getByLabelText<HTMLInputElement>('제목');
+    await userEvent.type(titleField, '팀 회의');
+
+    const dateField = screen.getByLabelText<HTMLInputElement>('날짜');
+    await userEvent.type(dateField, '2025-02-15');
+
+    const startTimeField = screen.getByLabelText<HTMLInputElement>('시작 시간');
+    await userEvent.type(startTimeField, '09:30');
+
+    const endTimeField = screen.getByLabelText<HTMLInputElement>('종료 시간');
+    await userEvent.type(endTimeField, '10:30');
+
+    const submitButton = screen.getByTestId('event-submit-button');
+    await userEvent.click(submitButton);
+
+    expect(await screen.findByText('일정 겹침 경고')).toBeInTheDocument();
+  });
+
+  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
+    vi.setSystemTime(new Date('2025-02-01T00:00:00'));
+    const events: Event[] = [
+      {
+        id: '10',
+        title: '팀 회의',
+        date: '2025-02-15',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '후후후 그냥 회의해',
+        location: '회의실 1',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+      {
+        id: '11',
+        title: '팀 회의 2',
+        date: '2025-02-15',
+        startTime: '13:00',
+        endTime: '15:00',
+        description: '후후후 그냥 회의해2',
+        location: '회의실 2',
+        category: '업무',
+        repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+        notificationTime: 10,
+      },
+    ];
+    setupMockHandlerFetching([...events]);
+    await appSetup();
+
+    const monthView = screen.getByTestId('month-view');
+    expect(monthView).toBeInTheDocument();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(eventList).toBeInTheDocument();
+
+    const searchField = screen.getByLabelText<HTMLInputElement>('일정 검색');
+    await userEvent.type(searchField, '팀 회의');
+
+    // 검색 결과가 있으면, 해당 일정이 표시되어야 한다.
+    expect(await within(eventList).findByText('팀 회의 2')).toBeInTheDocument();
+
+    const editIconButtons = await screen.findAllByLabelText('Edit event');
+    await userEvent.click(editIconButtons[0]);
+
+    const startTimeField = screen.getByLabelText<HTMLInputElement>('시작 시간');
+    await userEvent.clear(startTimeField);
+    await userEvent.type(startTimeField, '13:30');
+
+    const endTimeField = screen.getByLabelText<HTMLInputElement>('종료 시간');
+    await userEvent.clear(endTimeField);
+    await userEvent.type(endTimeField, '14:30');
+
+    const submitButton = screen.getByTestId('event-submit-button');
+    await userEvent.click(submitButton);
+
+    expect(await screen.findByText('일정 겹침 경고')).toBeInTheDocument();
+  });
 });
 
-it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {});
+it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {
+  vi.setSystemTime(new Date('2025-02-15T08:50:00'));
+  const events: Event[] = [
+    {
+      id: '10',
+      title: '팀 회의',
+      date: '2025-02-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '후후후 그냥 회의해',
+      location: '회의실 1',
+      category: '업무',
+      repeat: { type: 'none', interval: 0, endDate: '2025-10-15' },
+      notificationTime: 10,
+    },
+  ];
+  setupMockHandlerFetching([...events]);
+  await appSetup();
+
+  await waitFor(() => {
+    expect(
+      screen.getByText(`${events[0].notificationTime}분 후 ${events[0].title} 일정이 시작됩니다.`)
+    ).toBeInTheDocument();
+  });
+
+  vi.useRealTimers();
+});
