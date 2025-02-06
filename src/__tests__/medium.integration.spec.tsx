@@ -13,6 +13,16 @@ import App from '../App';
 import { server } from '../setupTests';
 import { Event, EventForm } from '../types';
 
+const appSetup = async () => {
+  await render(
+    <ChakraProvider>
+      <App />
+    </ChakraProvider>
+  );
+  const user = userEvent.setup();
+
+  return { user };
+};
 describe('일정 CRUD 및 기본 기능', () => {
   beforeEach(() => {
     vi.setSystemTime(new Date('2025-02-01T00:00:00'));
@@ -23,12 +33,7 @@ describe('일정 CRUD 및 기본 기능', () => {
   });
   it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
-    await render(
-      <ChakraProvider>
-        <App />
-      </ChakraProvider>
-    );
-    const user = userEvent.setup();
+    const { user } = await appSetup();
 
     const formData: EventForm = {
       title: '준만회의',
@@ -103,12 +108,7 @@ describe('일정 CRUD 및 기본 기능', () => {
         notificationTime: 10,
       },
     ]);
-    await render(
-      <ChakraProvider>
-        <App />
-      </ChakraProvider>
-    );
-    const user = userEvent.setup();
+    const { user } = await appSetup();
 
     const formData: Pick<EventForm, 'title'> = {
       title: '바뀐회의',
@@ -145,12 +145,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     };
     setupMockHandlerDeletion([willBeDeletedEvent]);
 
-    await render(
-      <ChakraProvider>
-        <App />
-      </ChakraProvider>
-    );
-    const user = userEvent.setup();
+    const { user } = await appSetup();
 
     const eventList = screen.getByTestId('event-list');
 
