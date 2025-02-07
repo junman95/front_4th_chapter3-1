@@ -11,7 +11,7 @@ interface Data {
   isRepeating: boolean;
   setOverlappingEvents: React.Dispatch<React.SetStateAction<Event[]>>;
   setIsOverlapDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // eslint-disable-next-line no-unused-vars
+
   saveEvent: (event: Event | EventForm) => Promise<void>;
   resetForm: () => void;
   errors: {

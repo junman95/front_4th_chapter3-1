@@ -19,7 +19,7 @@ interface OverlapAlertDialogProps {
   overlappingEvents: Event[];
   isOverlapDialogOpen: boolean;
   setIsOverlapDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // eslint-disable-next-line no-unused-vars
+
   saveEvent: (event: Event | EventForm) => void;
 }
 const OverlapAlertDialog: React.FC<OverlapAlertDialogProps> = ({

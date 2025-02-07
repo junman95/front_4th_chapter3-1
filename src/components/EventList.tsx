@@ -19,9 +19,9 @@ interface EventListProps {
   filteredEvents: Event[];
   notifiedEvents: string[];
   notificationOptions: { value: number; label: string }[];
-  // eslint-disable-next-line no-unused-vars
+
   editEvent: (event: Event) => void;
-  // eslint-disable-next-line no-unused-vars
+
   deleteEvent: (eventId: string) => void;
 }
 
